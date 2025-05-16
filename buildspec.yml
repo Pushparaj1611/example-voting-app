@@ -10,4 +10,7 @@ phases:
       - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/result:latest  .
   post_build:
     commands:
-      - echo "Build completed successfully"
+      - echo "Logging in to ECR"
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 306856845400.dkr.ecr.us-east-1.amazonaws.com
+      - echo "Pushing the docker image to ECR"
+      - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/result:latest
