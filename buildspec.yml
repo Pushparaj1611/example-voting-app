@@ -12,6 +12,8 @@ phases:
       - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/seed-data:latest  .
       - cd ../vote
       - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/vote:latest  .
+      - cd ../worker
+      - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/worker:latest  .
   post_build:
     commands:
       - echo "Logging in to ECR"
@@ -20,3 +22,4 @@ phases:
       - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/result:latest
       - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/seed-data:latest
       - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/vote:latest
+      - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/worker:latest
