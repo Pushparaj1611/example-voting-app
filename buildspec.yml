@@ -1,25 +1,26 @@
 version: 0.2
+env:
+  variables:
+    ECR_REPO: "306856845400.dkr.ecr.us-east-1.amazonaws.com"
+    REGION: "us-east-1"
 phases:
   pre_build:
     commands:
-      - echo "Installing dependencies"
+      - echo "Logging in to ECR"
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_REPO
   build:
     commands:
-      - echo "Builind the docker image"
-      - cd result
-      - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/result:latest  .
-      - cd ../seed-data
-      - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/seed-data:latest  .
-      - cd ../vote
-      - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/vote:latest  .
-      - cd ../worker
-      - docker build -t 306856845400.dkr.ecr.us-east-1.amazonaws.com/worker:latest  .
+      - echo "Building docker images in parallel"
+      - docker build -t $ECR_REPO/result:latest ./result &
+      - docker build -t $ECR_REPO/seed-data:latest ./seed-data &
+      - docker build -t $ECR_REPO/vote:latest ./vote &
+      - docker build -t $ECR_REPO/worker:latest ./worker &
+      - wait
   post_build:
     commands:
-      - echo "Logging in to ECR"
-      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 306856845400.dkr.ecr.us-east-1.amazonaws.com
-      - echo "Pushing the docker image to ECR"
-      - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/result:latest
-      - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/seed-data:latest
-      - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/vote:latest
-      - docker push 306856845400.dkr.ecr.us-east-1.amazonaws.com/worker:latest
+      - echo "Pushing docker images to ECR"
+      - docker push $ECR_REPO/result:latest &
+      - docker push $ECR_REPO/seed-data:latest &
+      - docker push $ECR_REPO/vote:latest &
+      - docker push $ECR_REPO/worker:latest &
+      - wait
