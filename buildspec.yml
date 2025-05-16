@@ -10,10 +10,6 @@ phases:
     commands:
       - echo "Logging in to ECR"
       - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ECR_REPO
-
-      # OPTIONAL: Docker Hub auth to avoid pull limit errors
-      #- echo "$DOCKERHUB_PASSWORD" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || echo "Skipping Docker Hub login"
-
       - BUILD_ID=${CODEBUILD_BUILD_NUMBER:-$(date +%Y%m%d%H%M%S)}
       - echo "Build ID: $BUILD_ID"
       - set -e
@@ -35,7 +31,3 @@ phases:
       - docker push $ECR_REPO/vote:$BUILD_ID &
       - docker push $ECR_REPO/worker:$BUILD_ID &
       - wait
-
-artifacts:
-  files:
-    - '**/*'
